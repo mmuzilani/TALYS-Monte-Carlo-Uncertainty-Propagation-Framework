@@ -229,77 +229,85 @@ $$
 ^{56}Fe \rightarrow {}^{57}Fe \rightarrow {}^{58}Fe \rightarrow {}^{59}Fe \rightarrow {}^{60}Fe.
 $$
 
-Each isotope’s abundance \(Y_i(t)\) changes according to:
+## General Reaction Network Equation
+
+## ⭐ General Reaction Network Equation
+
+The evolution of isotope abundances in a neutron-capture chain is governed by:
 
 $$
 \frac{dY_i}{dt}
-=
--\lambda_i Y_i
-+
-\lambda_{i-1} \, Y_{i-1}
--
-\lambda_{\beta,i} Y_i .
+= -\lambda_i\,Y_i 
++ \lambda_{i-1}\,Y_{i-1}
+- \lambda_{\beta,i}\,Y_i
 $$
 
-Interpretation of the terms:
-
-- **−λᵢ Yᵢ** → isotope is destroyed by neutron capture  
-- **+λᵢ₋₁ Yᵢ₋₁** → isotope is created by the previous isotope  
-- **−λβ Yᵢ** → isotope is destroyed by β-decay  
-
-Now, writing each isotope explicitly:
-
-### 56Fe (initial seed nucleus)
-
-$$
-\frac{dY_{56}}{dt}
-=
--\lambda_{56} Y_{56}
-$$
-
-### 57Fe
-
-$$
-\frac{dY_{57}}{dt}
-=
-\lambda_{56} Y_{56}
--
-\lambda_{57} Y_{57}
-$$
-
-### 58Fe
-
-$$
-\frac{dY_{58}}{dt}
-=
-\lambda_{57} Y_{57}
--
-\lambda_{58} Y_{58}
-$$
-
-### 59Fe (radioactive)
-
-$$
-\frac{dY_{59}}{dt}
-=
-\lambda_{58} Y_{58}
--
-\left( \lambda_{59} + \lambda_{\beta,59} \right) Y_{59}
-$$
-
-### 60Fe (radioactive)
-
-$$
-\frac{dY_{60}}{dt}
-=
-\lambda_{59} Y_{59}
--
-\lambda_{\beta,60} Y_{60}
-$$
-
-These five equations define the neutron-capture + decay network.
+### Meaning of the terms
+- Isotope destroyed by neutron capture:  
+  $$ -\lambda_i Y_i $$
+- Isotope created from the previous isotope:  
+  $$ +\lambda_{i-1} Y_{i-1} $$
+- Isotope destroyed by β-decay:  
+  $$ -\lambda_{\beta,i} Y_i $$
 
 ---
+
+# ⭐ Explicit Equations for the 5-Isotope Fe Reaction Network
+
+### **1. \(^{56}\mathrm{Fe}\)** — stable
+$$
+\frac{dY_{56}}{dt}
+= -\lambda_{56}\,Y_{56}
+$$
+
+---
+
+### **2. \(^{57}\mathrm{Fe}\)**
+$$
+\frac{dY_{57}}{dt}
+= \lambda_{56}\,Y_{56}
+- \lambda_{57}\,Y_{57}
+$$
+
+---
+
+### **3. \(^{58}\mathrm{Fe}\)**
+$$
+\frac{dY_{58}}{dt}
+= \lambda_{57}\,Y_{57}
+- \lambda_{58}\,Y_{58}
+$$
+
+---
+
+### **4. \(^{59}\mathrm{Fe}\)** — radioactive
+$$
+\frac{dY_{59}}{dt}
+= \lambda_{58}\,Y_{58}
+- \left( \lambda_{59} + \lambda_{\beta,59} \right)\,Y_{59}
+$$
+
+---
+
+### **5. \(^{60}\mathrm{Fe}\)** — radioactive
+$$
+\frac{dY_{60}}{dt}
+= \lambda_{59}\,Y_{59}
+- \lambda_{\beta,60}\,Y_{60}
+$$
+
+---
+
+# ⭐ Interpretation of the Abundance Curves
+
+- \(Y_{56}(t)\) → decreases steadily (consumed by neutron capture)
+- \(Y_{57}(t)\) → rises at first, then slowly falls  
+- \(Y_{58}(t)\) → rises later, following buildup of 57Fe  
+- \(Y_{59}(t)\) → rises but then declines due to β-decay  
+- \(Y_{60}(t)\) → final product; gradually accumulates  
+
+These curves show how material flows through the Fe isotopes during nucleosynthesis.
+
 
 # Matrix Form of the Network (for Fast Numerical Solving)
 
