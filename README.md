@@ -1,6 +1,64 @@
-# Nuclear Data Preparation
+# A Python-Based Monte-Carlo Nuclear Reaction Network for the Iron Isotopic Chain
+---
 
-## Introduction to Nuclear Reaction Data
+Neutron-capture reactions are central to the production of heavy elements in stellar environments, particularly through the slow neutron-capture process (s-process). During this process, seed nuclei gradually capture neutrons and undergo β-decays, forming increasingly heavier isotopes. Accurate modeling of these nucleosynthesis pathways requires reliable nuclear physics inputs: energy-dependent neutron-capture cross sections \(\sigma(E)\), Maxwellian-Averaged Cross Sections (MACS), reaction rates \(\langle \sigma v \rangle\), and β-decay constants. Because experimental cross-section data are limited for many isotopes, theoretical nuclear reaction codes such as **TALYS** are widely used to generate complete sets of \(\sigma(E)\), which can then be validated and refined using databases like **KADoNiS** or **EXFOR**.
+
+The iron isotopic chain provides a particularly important test case due to its astrophysical relevance and combination of stable and radioactive isotopes. In this project, we model the full neutron-capture chain by integrating theoretical cross sections, experimental MACS, and decay information into a unified computational framework.
+
+This project implements a complete, end-to-end workflow:
+
+- Generation of TALYS neutron-capture cross sections 
+- Computation of Maxwellian-Averaged Cross Sections through numerical integration
+- Validation of TALYS MACS against experimental data
+- Monte-Carlo propagation of cross-section uncertainties
+- Calculation of reaction rates and decay constants
+- Construction of a five-isotope neutron-capture + β-decay reaction network
+- Numerical solution of the ODE system using matrix exponential (Schur decomposition)
+- Abundance evolution and uncertainty quantification
+
+Together, these steps produce realistic nucleosynthesis predictions and provide insight into how nuclear uncertainties affect the formation of heavy isotopes in stars. The workflow mirrors modern computational methods used in nuclear astrophysics research.
+
+                         ┌─────────────────────────┐
+                         │ TALYS σ(E) Cross Section│
+                         │    (4 CSV files)        │
+                         └────────────┬────────────┘
+                                      │
+                                      ▼
+                     ┌────────────────────────────────┐
+                     │ 1) Compute MACS(kT) from σ(E)  │
+                     │    (Code: compute_macs)        │
+                     └──────────────────┬─────────────┘
+                                        │
+                                        ▼
+                        ┌─────────────────────────────────┐
+                        │ Compare TALYS MACS vs Experiment│
+                        │   (Code: compare_macs)          │
+                        └──────────────────┬──────────────┘
+                                           │
+                                           ▼
+                     ┌────────────────────────────────────┐
+                     │ Plot Maxwellian Integrand          │
+                     │   (Code: plot_integrand...)        │
+                     └────────────────────┬───────────────┘
+                                          │
+                                          ▼
+                   ┌───────────────────────────────────────────┐
+                   │ Monte-Carlo MACS Uncertainty (±10%)       │
+                   │  (Code: mc_macs_uncertainty...)           │
+                   └────────────────────┬──────────────────────┘
+                                         │
+                                         ▼
+      ┌──────────────────────────────────────────────────────────────────┐
+      │ Build Reaction Network (5 isotopes)                              │
+      │ Compute λ = nₙ⟨σv⟩ and λβ                                        │
+      │ Solve ODE via Schur-Decomposition (200 Monte-Carlo runs)         │
+      │ Plot abundance evolution + uncertainty bands                     │
+      │ (Code: full_network_solver)                                   │
+      └──────────────────────────────────────────────────────────────────┘
+
+
+
+## Nuclear Reaction Data
 
 In stellar environments, heavy elements are built through a sequence of neutron-capture reactions and β-decays.  
 To model such nucleosynthesis, we require reliable nuclear physics input.  
@@ -228,86 +286,6 @@ The isotopes form a sequential chain:
 $$
 ^{56}Fe \rightarrow {}^{57}Fe \rightarrow {}^{58}Fe \rightarrow {}^{59}Fe \rightarrow {}^{60}Fe.
 $$
-
-## General Reaction Network Equation
-
-## ⭐ General Reaction Network Equation
-
-The evolution of isotope abundances in a neutron-capture chain is governed by:
-
-$$
-\frac{dY_i}{dt}
-= -\lambda_i\,Y_i 
-+ \lambda_{i-1}\,Y_{i-1}
-- \lambda_{\beta,i}\,Y_i
-$$
-
-### Meaning of the terms
-- Isotope destroyed by neutron capture:  
-  $$ -\lambda_i Y_i $$
-- Isotope created from the previous isotope:  
-  $$ +\lambda_{i-1} Y_{i-1} $$
-- Isotope destroyed by β-decay:  
-  $$ -\lambda_{\beta,i} Y_i $$
-
----
-
-# ⭐ Explicit Equations for the 5-Isotope Fe Reaction Network
-
-### **1. \(^{56}\mathrm{Fe}\)** — stable
-$$
-\frac{dY_{56}}{dt}
-= -\lambda_{56}\,Y_{56}
-$$
-
----
-
-### **2. \(^{57}\mathrm{Fe}\)**
-$$
-\frac{dY_{57}}{dt}
-= \lambda_{56}\,Y_{56}
-- \lambda_{57}\,Y_{57}
-$$
-
----
-
-### **3. \(^{58}\mathrm{Fe}\)**
-$$
-\frac{dY_{58}}{dt}
-= \lambda_{57}\,Y_{57}
-- \lambda_{58}\,Y_{58}
-$$
-
----
-
-### **4. \(^{59}\mathrm{Fe}\)** — radioactive
-$$
-\frac{dY_{59}}{dt}
-= \lambda_{58}\,Y_{58}
-- \left( \lambda_{59} + \lambda_{\beta,59} \right)\,Y_{59}
-$$
-
----
-
-### **5. \(^{60}\mathrm{Fe}\)** — radioactive
-$$
-\frac{dY_{60}}{dt}
-= \lambda_{59}\,Y_{59}
-- \lambda_{\beta,60}\,Y_{60}
-$$
-
----
-
-# ⭐ Interpretation of the Abundance Curves
-
-- \(Y_{56}(t)\) → decreases steadily (consumed by neutron capture)
-- \(Y_{57}(t)\) → rises at first, then slowly falls  
-- \(Y_{58}(t)\) → rises later, following buildup of 57Fe  
-- \(Y_{59}(t)\) → rises but then declines due to β-decay  
-- \(Y_{60}(t)\) → final product; gradually accumulates  
-
-These curves show how material flows through the Fe isotopes during nucleosynthesis.
-
 
 # Matrix Form of the Network (for Fast Numerical Solving)
 
